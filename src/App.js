@@ -3,9 +3,14 @@ import Header from './components/Header';
 import MessageDisplay from './components/MessageDisplay';
 import MessageInput from './components/MessageInput';
 
+// Helper function to generate unique IDs
+const generateId = () => {
+  return Date.now() + Math.floor(Math.random() * 1000);
+};
+
 function App() {
   const [messages, setMessages] = useState([
-    { id: 1, text: 'Hello! How can I help you today?', sender: 'bot', timestamp: new Date() },
+    { id: generateId(), text: 'Hello! How can I help you today?', sender: 'bot', timestamp: new Date() },
   ]);
   
   const messageDisplayRef = useRef(null);
@@ -20,31 +25,33 @@ function App() {
   const handleSendMessage = (text) => {
     if (text.trim() === '') return;
     
-    // Add user message
-    const newUserMessage = {
-      id: messages.length + 1,
-      text,
-      sender: 'user',
-      timestamp: new Date()
-    };
-    
-    setMessages(prevMessages => [...prevMessages, newUserMessage]);
+    // Add user message using functional update to ensure we're working with the latest state
+    setMessages(prevMessages => [
+      ...prevMessages, 
+      {
+        id: generateId(),
+        text,
+        sender: 'user',
+        timestamp: new Date()
+      }
+    ]);
     
     // Simulate bot response after a short delay
     setTimeout(() => {
-      const botResponse = {
-        id: messages.length + 2,
-        text: `I received your message: "${text}"`,
-        sender: 'bot',
-        timestamp: new Date()
-      };
-      
-      setMessages(prevMessages => [...prevMessages, botResponse]);
+      setMessages(prevMessages => [
+        ...prevMessages,
+        {
+          id: generateId(),
+          text: `I received your message: "${text}"`,
+          sender: 'bot',
+          timestamp: new Date()
+        }
+      ]);
     }, 1000);
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
+    <div className="flex flex-col h-screen bg-gray-100" data-testid="app-container">
       <Header />
       <MessageDisplay 
         messages={messages} 
