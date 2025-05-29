@@ -3,6 +3,7 @@ import Header from './components/Header';
 import MessageDisplay from './components/MessageDisplay';
 import MessageInput from './components/MessageInput';
 import ConnectionStatus from './components/ConnectionStatus';
+import BotToggle from './components/BotToggle';
 import { useChat } from './context/ChatContext';
 
 function App() {
@@ -19,7 +20,10 @@ function App() {
   return (
     <div className="flex flex-col h-screen bg-gray-100" data-testid="app-container">
       <Header />
-      <ConnectionStatus status={connectionStatus} error={error} />
+      <div className="flex justify-between items-center">
+        <ConnectionStatus status={connectionStatus} error={error} />
+        <BotToggle />
+      </div>
       <MessageDisplay 
         messages={messages} 
         ref={messageDisplayRef}
