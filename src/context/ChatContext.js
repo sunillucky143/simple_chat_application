@@ -13,6 +13,7 @@ export const ChatProvider = ({ children }) => {
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const [error, setError] = useState(null);
   const [typingUsers, setTypingUsers] = useState({});
+  const [botEnabled, setBotEnabled] = useState(true);
   const socket = useRef(null);
   
   // Initialize socket connection
@@ -41,6 +42,9 @@ export const ChatProvider = ({ children }) => {
     // Message event handlers
     socket.current.on('connection_ack', (data) => {
       console.log('Connection acknowledged:', data);
+      if (data.botEnabled !== undefined) {
+        setBotEnabled(data.botEnabled);
+      }
     });
     
     socket.current.on('message_history', (data) => {
@@ -56,6 +60,11 @@ export const ChatProvider = ({ children }) => {
       console.error('Socket error:', data.message);
     });
     
+    // Bot status handler
+    socket.current.on('bot_status', (data) => {
+      setBotEnabled(data.enabled);
+    });
+    
     // Typing status handler
     socket.current.on('user_typing', (data) => {
       setTypingUsers((prev) => ({
@@ -64,11 +73,27 @@ export const ChatProvider = ({ children }) => {
       }));
     });
     
+    // Load bot preference from localStorage
+    const savedBotEnabled = localStorage.getItem('botEnabled');
+    if (savedBotEnabled !== null) {
+      const isEnabled = savedBotEnabled === 'true';
+      setBotEnabled(isEnabled);
+      // Sync with server when connection is established
+      if (socket.current && socket.current.connected) {
+        socket.current.emit('toggle_bot', { enabled: isEnabled });
+      }
+    }
+    
     // Cleanup on unmount
     return () => {
       disconnectSocket();
     };
   }, []);
+  
+  // Effect to save bot preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('botEnabled', botEnabled.toString());
+  }, [botEnabled]);
   
   // Send a message
   const sendMessage = (text) => {
@@ -79,6 +104,17 @@ export const ChatProvider = ({ children }) => {
     
     if (!success) {
       setError('Failed to send message. Please check your connection.');
+    }
+  };
+  
+  // Toggle bot status
+  const toggleBot = () => {
+    const newStatus = !botEnabled;
+    setBotEnabled(newStatus);
+    
+    const socket = getSocket();
+    if (socket) {
+      socket.emit('toggle_bot', { enabled: newStatus });
     }
   };
   
@@ -101,7 +137,9 @@ export const ChatProvider = ({ children }) => {
     connectionStatus,
     error,
     typingUsers,
+    botEnabled,
     sendMessage,
+    toggleBot,
     updateTypingStatus,
     clearError
   };
