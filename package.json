@@ -18,6 +18,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:integration": "jest --config=test/jest.integration.config.js",
+    "test:security": "jest --config=test/jest.integration.config.js --testMatch='**/test/integration/security/**/*.test.js'",
+    "test:api": "jest --config=test/jest.integration.config.js --testMatch='**/test/integration/api/**/*.test.js'",
+    "test:socket": "jest --config=test/jest.integration.config.js --testMatch='**/test/integration/socket/**/*.test.js'",
+    "test:e2e": "jest --config=test/jest.integration.config.js --testMatch='**/test/integration/e2e/**/*.test.js'",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
