@@ -22,12 +22,12 @@ Actions:
         - WorkflowSource
     Configuration:
       Steps:
-        - name: Install frontend dependencies
-          run: |
+        - Name: Install frontend dependencies
+          Run: |
             cd /projects/simple_chat_application
             npm install
-        - name: Install backend dependencies
-          run: |
+        - Name: Install backend dependencies
+          Run: |
             cd /projects/simple_chat_application/backend
             npm install
 
@@ -44,8 +44,8 @@ Actions:
         ReportNamePrefix: frontend
     Configuration:
       Steps:
-        - name: Run frontend tests
-          run: |
+        - Name: Run frontend tests
+          Run: |
             cd /projects/simple_chat_application
             CI=true npm test -- --coverage --testResultsProcessor="jest-junit"
       Container:
@@ -70,8 +70,8 @@ Actions:
         ReportNamePrefix: backend
     Configuration:
       Steps:
-        - name: Run backend unit tests
-          run: |
+        - Name: Run backend unit tests
+          Run: |
             cd /projects/simple_chat_application/backend
             npm test -- --coverage --testResultsProcessor="jest-junit"
       Container:
@@ -96,20 +96,20 @@ Actions:
         ReportNamePrefix: integration
     Configuration:
       Steps:
-        - name: Install jest-junit reporter
-          run: |
+        - Name: Install jest-junit reporter
+          Run: |
             cd /projects/simple_chat_application
             npm install --save-dev jest-junit
-        - name: Run API integration tests
-          run: |
+        - Name: Run API integration tests
+          Run: |
             cd /projects/simple_chat_application
             npm run test:api -- --testResultsProcessor="jest-junit"
-        - name: Run Socket integration tests
-          run: |
+        - Name: Run Socket integration tests
+          Run: |
             cd /projects/simple_chat_application
             npm run test:socket -- --testResultsProcessor="jest-junit"
-        - name: Run Security tests
-          run: |
+        - Name: Run Security tests
+          Run: |
             cd /projects/simple_chat_application
             npm run test:security -- --testResultsProcessor="jest-junit"
       Container:
@@ -134,12 +134,12 @@ Actions:
         ReportNamePrefix: e2e
     Configuration:
       Steps:
-        - name: Install jest-junit reporter
-          run: |
+        - Name: Install jest-junit reporter
+          Run: |
             cd /projects/simple_chat_application
             npm install --save-dev jest-junit
-        - name: Run E2E tests
-          run: |
+        - Name: Run E2E tests
+          Run: |
             cd /projects/simple_chat_application
             npm run test:e2e -- --testResultsProcessor="jest-junit"
       Container:
