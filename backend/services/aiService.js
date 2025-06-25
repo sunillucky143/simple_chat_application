@@ -23,6 +23,7 @@ function initUserHistory(userId) {
   }
 }
 
+console.log(MAX_HISTORY_LENGTH)
 /**
  * Add a message to the conversation history
  * @param {string} userId - User ID
