@@ -1,7 +1,6 @@
 Name: SimpleChat_Test_Workflow
-SchemaVersion: "1.0"
+SchemaVersion: 1.0            # numeric is fine; quotes optional
 
-# Automatic triggers for test workflow
 Triggers:
   - Type: Push
     Branches:
@@ -13,26 +12,29 @@ Triggers:
       - Open
       - Revision
 
-# Define action configurations
 Actions:
+
   Install_Dependencies:
-    Identifier: aws/github-actions-runner@v1
+    Identifier: aws/build@v1
     Inputs:
       Sources:
         - WorkflowSource
     Configuration:
       Steps:
-        - name: Install frontend dependencies
-          run: |
-            cd /projects/simple_chat_application
-            npm install
-        - name: Install backend dependencies
-          run: |
-            cd /projects/simple_chat_application/backend
-            npm install
+        - Run: |
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
+            npm ci
+        - Run: |
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application/backend"
+            npm ci
+    Compute:
+      Type: EC2
+      Fleet: Linux.x86-64.Large
+    Environment:
+      Name: test-cicd-env
 
   Frontend_Tests:
-    Identifier: aws/managed-test@v1.0.0
+    Identifier: aws/managed-test@v1
     DependsOn:
       - Install_Dependencies
     Inputs:
@@ -44,10 +46,9 @@ Actions:
         ReportNamePrefix: frontend
     Configuration:
       Steps:
-        - name: Run frontend tests
-          run: |
-            cd /projects/simple_chat_application
-            CI=true npm test -- --coverage --testResultsProcessor="jest-junit"
+        - Run: |
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
+            CI=true npm test -- --coverage --testResultsProcessor=jest-junit
       Container:
         Registry: CODECATALYST
         Image: CodeCatalystLinux_x86_64:2024_03
@@ -58,7 +59,7 @@ Actions:
       Name: test-cicd-env
 
   Backend_Tests:
-    Identifier: aws/managed-test@v1.0.0
+    Identifier: aws/managed-test@v1
     DependsOn:
       - Install_Dependencies
     Inputs:
@@ -70,10 +71,9 @@ Actions:
         ReportNamePrefix: backend
     Configuration:
       Steps:
-        - name: Run backend unit tests
-          run: |
-            cd /projects/simple_chat_application/backend
-            npm test -- --coverage --testResultsProcessor="jest-junit"
+        - Run: |
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application/backend"
+            npm test -- --coverage --testResultsProcessor=jest-junit
       Container:
         Registry: CODECATALYST
         Image: CodeCatalystLinux_x86_64:2024_03
@@ -84,7 +84,7 @@ Actions:
       Name: test-cicd-env
 
   Integration_Tests:
-    Identifier: aws/managed-test@v1.0.0
+    Identifier: aws/managed-test@v1
     DependsOn:
       - Install_Dependencies
     Inputs:
@@ -96,22 +96,18 @@ Actions:
         ReportNamePrefix: integration
     Configuration:
       Steps:
-        - name: Install jest-junit reporter
-          run: |
-            cd /projects/simple_chat_application
+        - Run: |
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
             npm install --save-dev jest-junit
-        - name: Run API integration tests
-          run: |
-            cd /projects/simple_chat_application
-            npm run test:api -- --testResultsProcessor="jest-junit"
-        - name: Run Socket integration tests
-          run: |
-            cd /projects/simple_chat_application
-            npm run test:socket -- --testResultsProcessor="jest-junit"
-        - name: Run Security tests
-          run: |
-            cd /projects/simple_chat_application
-            npm run test:security -- --testResultsProcessor="jest-junit"
+        - Run: |
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
+            npm run test:api -- --testResultsProcessor=jest-junit
+        - Run: |
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
+            npm run test:socket -- --testResultsProcessor=jest-junit
+        - Run: |
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
+            npm run test:security -- --testResultsProcessor=jest-junit
       Container:
         Registry: CODECATALYST
         Image: CodeCatalystLinux_x86_64:2024_03
@@ -122,7 +118,7 @@ Actions:
       Name: test-cicd-env
 
   E2E_Tests:
-    Identifier: aws/managed-test@v1.0.0
+    Identifier: aws/managed-test@v1
     DependsOn:
       - Install_Dependencies
     Inputs:
@@ -134,14 +130,12 @@ Actions:
         ReportNamePrefix: e2e
     Configuration:
       Steps:
-        - name: Install jest-junit reporter
-          run: |
-            cd /projects/simple_chat_application
+        - Run: |
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
             npm install --save-dev jest-junit
-        - name: Run E2E tests
-          run: |
-            cd /projects/simple_chat_application
-            npm run test:e2e -- --testResultsProcessor="jest-junit"
+        - Run: |
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
+            npm run test:e2e -- --testResultsProcessor=jest-junit
       Container:
         Registry: CODECATALYST
         Image: CodeCatalystLinux_x86_64:2024_03
