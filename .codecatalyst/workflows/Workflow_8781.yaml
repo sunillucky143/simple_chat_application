@@ -1,146 +1,99 @@
-Name: SimpleChat_Test_Workflow_changed
-SchemaVersion: 1.0            # numeric is fine; quotes optional
+Name: SimpleChat_Test_Workflow
+SchemaVersion: 1.0
 
 Triggers:
   - Type: Push
-    Branches:
-      - master
-      - main
-      - develop
+    Branches: [master, main, develop]
   - Type: PullRequest
-    Events:
-      - Open
-      - Revision
+    Events: [Open, Revision]
 
 Actions:
 
   Install_Dependencies:
     Identifier: aws/build@v1
-    Inputs:
-      Sources:
-        - WorkflowSource
+    Inputs: { Sources: [WorkflowSource] }
     Configuration:
       Steps:
+        # Front-end / root
+        - RUN: pwd
         - Run: |
-            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
-            npm ci || npm install
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource"
+            npm install
+        # Back-end
         - Run: |
-            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application/backend"
-            npm ci || npm install
-    Compute:
-      Type: EC2
-      Fleet: Linux.x86-64.Large
-    Environment:
-      Name: test-cicd-env
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/backend"
+            npm install
+    Compute: { Type: EC2, Fleet: Linux.x86-64.Large }
+    Environment: { Name: test-cicd-env }
 
   Frontend_Tests:
     Identifier: aws/managed-test@v1
-    DependsOn:
-      - Install_Dependencies
-    Inputs:
-      Sources:
-        - WorkflowSource
+    DependsOn: [Install_Dependencies]
+    Inputs: { Sources: [WorkflowSource] }
     Outputs:
-      AutoDiscoverReports:
-        Enabled: true
-        ReportNamePrefix: frontend
+      AutoDiscoverReports: { Enabled: true, ReportNamePrefix: frontend }
     Configuration:
       Steps:
         - Run: |
-            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource"
             CI=true npm test -- --coverage --testResultsProcessor=jest-junit
-      Container:
-        Registry: CODECATALYST
-        Image: CodeCatalystLinux_x86_64:2024_03
-    Compute:
-      Type: EC2
-      Fleet: Linux.x86-64.Large
-    Environment:
-      Name: test-cicd-env
+      Container: { Registry: CODECATALYST, Image: CodeCatalystLinux_x86_64:2024_03 }
+    Compute: { Type: EC2, Fleet: Linux.x86-64.Large }
+    Environment: { Name: test-cicd-env }
 
   Backend_Tests:
     Identifier: aws/managed-test@v1
-    DependsOn:
-      - Install_Dependencies
-    Inputs:
-      Sources:
-        - WorkflowSource
+    DependsOn: [Install_Dependencies]
+    Inputs: { Sources: [WorkflowSource] }
     Outputs:
-      AutoDiscoverReports:
-        Enabled: true
-        ReportNamePrefix: backend
+      AutoDiscoverReports: { Enabled: true, ReportNamePrefix: backend }
     Configuration:
       Steps:
         - Run: |
-            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application/backend"
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/backend"
             npm test -- --coverage --testResultsProcessor=jest-junit
-      Container:
-        Registry: CODECATALYST
-        Image: CodeCatalystLinux_x86_64:2024_03
-    Compute:
-      Type: EC2
-      Fleet: Linux.x86-64.Large
-    Environment:
-      Name: test-cicd-env
+      Container: { Registry: CODECATALYST, Image: CodeCatalystLinux_x86_64:2024_03 }
+    Compute: { Type: EC2, Fleet: Linux.x86-64.Large }
+    Environment: { Name: test-cicd-env }
 
   Integration_Tests:
     Identifier: aws/managed-test@v1
-    DependsOn:
-      - Install_Dependencies
-    Inputs:
-      Sources:
-        - WorkflowSource
+    DependsOn: [Install_Dependencies]
+    Inputs: { Sources: [WorkflowSource] }
     Outputs:
-      AutoDiscoverReports:
-        Enabled: true
-        ReportNamePrefix: integration
+      AutoDiscoverReports: { Enabled: true, ReportNamePrefix: integration }
     Configuration:
       Steps:
         - Run: |
-            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource"
             npm install --save-dev jest-junit
         - Run: |
-            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
-            npm run test:api -- --testResultsProcessor=jest-junit
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource"
+            npm run test:api     -- --testResultsProcessor=jest-junit
         - Run: |
-            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
-            npm run test:socket -- --testResultsProcessor=jest-junit
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource"
+            npm run test:socket  -- --testResultsProcessor=jest-junit
         - Run: |
-            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource"
             npm run test:security -- --testResultsProcessor=jest-junit
-      Container:
-        Registry: CODECATALYST
-        Image: CodeCatalystLinux_x86_64:2024_03
-    Compute:
-      Type: EC2
-      Fleet: Linux.x86-64.Large
-    Environment:
-      Name: test-cicd-env
+      Container: { Registry: CODECATALYST, Image: CodeCatalystLinux_x86_64:2024_03 }
+    Compute: { Type: EC2, Fleet: Linux.x86-64.Large }
+    Environment: { Name: test-cicd-env }
 
   E2E_Tests:
     Identifier: aws/managed-test@v1
-    DependsOn:
-      - Install_Dependencies
-    Inputs:
-      Sources:
-        - WorkflowSource
+    DependsOn: [Install_Dependencies]
+    Inputs: { Sources: [WorkflowSource] }
     Outputs:
-      AutoDiscoverReports:
-        Enabled: true
-        ReportNamePrefix: e2e
+      AutoDiscoverReports: { Enabled: true, ReportNamePrefix: e2e }
     Configuration:
       Steps:
         - Run: |
-            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource"
             npm install --save-dev jest-junit
         - Run: |
-            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
+            cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource"
             npm run test:e2e -- --testResultsProcessor=jest-junit
-      Container:
-        Registry: CODECATALYST
-        Image: CodeCatalystLinux_x86_64:2024_03
-    Compute:
-      Type: EC2
-      Fleet: Linux.x86-64.Large
-    Environment:
-      Name: test-cicd-env
+      Container: { Registry: CODECATALYST, Image: CodeCatalystLinux_x86_64:2024_03 }
+    Compute: { Type: EC2, Fleet: Linux.x86-64.Large }
+    Environment: { Name: test-cicd-env }
