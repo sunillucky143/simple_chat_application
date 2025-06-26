@@ -23,10 +23,10 @@ Actions:
       Steps:
         - Run: |
             cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application"
-            npm ci
+            npm ci || npm install
         - Run: |
             cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource/projects/simple_chat_application/backend"
-            npm ci
+            npm ci || npm install
     Compute:
       Type: EC2
       Fleet: Linux.x86-64.Large
