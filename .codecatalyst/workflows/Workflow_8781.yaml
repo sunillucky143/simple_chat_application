@@ -1,4 +1,4 @@
-Name: SimpleChat_Test_Workflow
+Name: SimpleChat_Test_Workflow_changed
 SchemaVersion: 1.0            # numeric is fine; quotes optional
 
 Triggers:
