@@ -15,7 +15,7 @@ Actions:
     Configuration:
       Steps:
         # Front-end / root
-        - RUN: pwd
+        - Run: pwd
         - Run: |
             cd "$ACTION_BUILD_SOURCE_PATH_WorkflowSource"
             npm install
